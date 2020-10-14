@@ -1,44 +1,28 @@
+/*
+    A route file only recieves, forwards and reply
+    recieve a request, forwards to a service, reply to the request sender
+    There should be no logic in the route
+*/
+
 const express = require('express');
 const router = express.Router();
 const books_path = './Books.json';
 const fs = require(`fs`);
-
-// Read DB
-var books = [];
-fs.readFile(books_path, 'utf8', (err, jsonString) => {
-    if (err) {
-        console.log("File read failed:", err);
-        return;
-    }
-    try {
-        books = JSON.parse(jsonString);
-        console.log('DB been loaded');
-    }
-    catch (err) {
-        console.log('Error parsing JSON string:', err);
-    };
-
-});
+const {getAllBooks, getBookById, createBook, updateBook, deleteBook} = require('./books.service');
 
 // Gets all Books
-router.get('/', (req, res) => {
-    fs.readFile(books_path, 'utf8', (err, jsonString) => {
-        if (err) {
-            console.log("File read failed:", err);
-            return;
-        }
-        try {
-            books = JSON.parse(jsonString);
-        }
-        catch (err) {
-            console.log('Error parsing JSON string:', err);
-        };
-
-    });
-    res.json(books);
-    const timeStamp = new Date().toLocaleString();
-    console.log(`${timeStamp} executed: ${req.method}`);
+router.get('/', async (req, res) => {
+    try{
+        const getAllBooksResponse = await getAllBooks(books_path);
+        res.send(getAllBooksResponse);
+        const timeStamp = new Date().toLocaleString();
+        console.log(`${timeStamp} executed: ${req.method}`);
+    }catch(error){
+        res.status(500).send(`Something went wrong: ${error}`);
+    }
 });
+
+/*
 
 // Get a single Book
 router.get('/:id', (req, res) => {
@@ -48,7 +32,7 @@ router.get('/:id', (req, res) => {
             return;
         }
         try {
-            books = JSON.parse(jsonString);
+            const books = JSON.parse(jsonString);
         }
         catch (err) {
             console.log('Error parsing JSON string:', err);
@@ -139,5 +123,5 @@ router.delete('/:id', (req, res) => {
         });
     }
 });
-
+*/
 module.exports = router;

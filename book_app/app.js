@@ -1,4 +1,5 @@
 const express = require('express');
+const books = require('./src/Books/books.routes');
 const app = express();
 
 const PORT = process.env.PORT || 5000;
@@ -8,6 +9,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Books API Routes
-app.use('/api/books', require('./REST_api'));
+app.use('/api/books', books);
 
-app.listen(PORT, () => console.log(`Servver started on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
