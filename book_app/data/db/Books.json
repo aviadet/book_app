@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "Moby Dyke",
+    "loan": "True"
+  },
+  {
+    "id": 2,
+    "name": "Three men in a boat",
+    "loan": "False"
+  },
+  {
+    "id": 3,
+    "name": "Animal Farm",
+    "loan": "False"
+  }
+]
