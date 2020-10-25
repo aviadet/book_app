@@ -6,13 +6,12 @@
 
 const express = require('express');
 const router = express.Router();
-const books_path = './data/db/Books.json';
 const {getAllBooks, getBookById, createBook, updateBook, deleteBook} = require('./books.service');
 
 // Gets all Books
 router.get('/', async (req, res) => {
     try {
-        const getAllBooksResponse = await getAllBooks(books_path);
+        const getAllBooksResponse = await getAllBooks();
         res.send(getAllBooksResponse);
         const timeStamp = new Date().toLocaleString();
         console.log(`${timeStamp} executed: ${req.method}`);
@@ -27,8 +26,7 @@ router.get('/', async (req, res) => {
 // Get a single Book
 router.get('/:id', async (req, res) => {
     try {
-        const getBookByIdResponse = await getBookById(books_path, req.params.id);
-        console.log(getBookByIdResponse);
+        const getBookByIdResponse = await getBookById(req.params.id);
         res.json(getBookByIdResponse);
         const timeStamp = new Date().toLocaleString();
         console.log(`${timeStamp} executed: ${req.method}, for book id ${req.params.id}`);
@@ -41,7 +39,7 @@ router.get('/:id', async (req, res) => {
 // Create Book
 router.post('/', async (req, res) => {
     try {
-        const createBookResponse = await createBook(books_path, req.body);
+        const createBookResponse = await createBook(req.body);
         res.send(createBookResponse);
         const timeStamp = new Date().toLocaleString();
         console.log(`${timeStamp}executed: ${req.method}`);
@@ -54,7 +52,7 @@ router.post('/', async (req, res) => {
 // Update Book
 router.put('/:id', async (req, res) => {
     try {
-        const updateBookResponse = await updateBook(books_path, req.params.id, req.body);
+        const updateBookResponse = await updateBook(req.params.id, req.body);
         res.send(updateBookResponse);
         const timeStamp = new Date().toLocaleString();
         console.log(`${timeStamp} executed: ${req.method}, for book id ${req.params.id}`);
@@ -67,7 +65,7 @@ router.put('/:id', async (req, res) => {
 // Delete Book
 router.delete('/:id', async (req, res) => {
     try {
-        const deleteBookResponse = await deleteBook(books_path, req.params.id);
+        const deleteBookResponse = await deleteBook(req.params.id);
         res.send(deleteBookResponse);
         const timeStamp = new Date().toLocaleString();
         console.log(`${timeStamp} executed: ${req.method}, for book id ${req.params.id}`);

@@ -8,126 +8,66 @@
     which, in turn, returns the reply to the request sender(another service, application, frontend etc.)
 */
 
-const fs = require('fs');
-const util = require('util');
+const Books = require('./books.db');
 
-//Turns a callback based asyncv function to a promise based function
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-
-const getAllBooks = async books_path => {
-    if(!books_path.length)
-        throw new Error('A path to a file must be provided');  
+const getAllBooks = async () => {
     try {
-        return await readFile(books_path);
+        return await Books.find();
+    }
+    catch (error) {
+        throw new Error('Read DB operation failed: ' + error.message);
+    }
+}
+
+const getBookById = async (book_id) => {
+    try {  
+        return await Books.findById(book_id);
     }
     catch (error) {
         throw new Error('Read file operation failed: ' + error.message);
     }
 }
 
-const getBookById = async (books_path, book_id) => {
-    if (!books_path.length)
-        throw new Error('A path to a file must be provided');
+const createBook = async (body) => {
     try {
-        const jsonFile = await readFile(books_path);
-        const books = JSON.parse(jsonFile);
-    
-        const found = books.some(book => book.id === parseInt(book_id));
-        if (found) {
-            const wanted_book = books.filter(book => book.id === parseInt(book_id));
-            return wanted_book;
-        }
-        else {
-            return (`No Book with the id of ${book_id}`);
-        }
-    }
-    catch (error) {
-        throw new Error('Read file operation failed: ' + error.message);
-    }
-}
-
-const createBook = async (books_path, body) => {
-    if (!books_path.length)
-        throw new Error('A path to a file must be provided');
-    try {
-        const jsonFile = await readFile(books_path);
-        const books = JSON.parse(jsonFile);
-
-        const newBook = {
-            id: (books.length + 1),
+        const newBook = new Books({
             name: body.name,
             loan: 'False'
-        };
-
+        });
         if (!newBook.name) {
             return 'Please enter the book name';
         };
 
-        books.push(newBook);
-        await writeFile(books_path, JSON.stringify(books, null, 2), (err) => {
-            if (err) console.log('Error writing file:', err);
-        });
-        return books;
+        await newBook.save();
+        return 'Book added successfully!';
     }
     catch (error) {
-        throw new Error('Read file operation failed: ' + error.message);
+        throw new Error('Create new Book operation failed: ' + error.message);
     }
 }
 
-const updateBook = async (books_path, book_id, body) => {
-    if (!books_path.length)
-        throw new Error('A path to a file must be provided');
+const updateBook = async (book_id, body) => {
     try {
-        const jsonFile = await readFile(books_path);
-        const books = JSON.parse(jsonFile);
-
-        const found = books.some(book => book.id === parseInt(book_id));
-
-        if (found) {
-            updBook = body;
-            books.forEach(book => {
-                if (book.id === parseInt(book_id)) {
-                    book.name = updBook.name ? updBook.name : book.name;
-                    book.loan = updBook.loan ? updBook.loan : book.loan;
-                }
-            });
-            await writeFile(books_path, JSON.stringify(books, null, 2), (err) => {
-                if (err) console.log('Error writing file:', err);
-            });
-            return `Book been updated`;
+        let updBook = {
+            name: body.name,
+            loan: body.loan
         }
-        else {
-            return `No Book with the id of ${book_id}`;
-        }
+
+        await Books.findByIdAndUpdate(book_id, { $set: updBook });
+        return 'Book been updated';
     }
     catch (error) {
-        throw new Error('Read file operation failed: ' + error.message);
+        throw new Error('Update book operation failed: ' + error.message);
     }
 }
 
-const deleteBook = async (books_path, book_id) => {
-    if (!books_path.length)
-        throw new Error('A path to a file must be provided');
+const deleteBook = async (book_id) => {
     try {
-        const jsonFile = await readFile(books_path);
-        var books = JSON.parse(jsonFile);
-
-        const found = books.some(book => book.id === parseInt(book_id));
-        
-        if (found) {
-            books = books.filter(book => book.id !== parseInt(book_id));
-            await writeFile(books_path, JSON.stringify(books, null, 2), (err) => {
-                if (err) console.log('Error writing file:', err);
-            });
-            return 'Book Deleted';
-        }
-        else {
-            return `No Book with the id of ${book_id}`;
-        }
+        await Books.findByIdAndRemove(book_id);
+        return 'Book Deleted';
     }
     catch (error) {
-        throw new Error('Read file operation failed: ' + error.message);
+        throw new Error('Delete book operation failed: ' + error.message);
     }
 }
 
